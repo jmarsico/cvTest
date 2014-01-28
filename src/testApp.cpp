@@ -24,6 +24,15 @@ void testApp::setup(){
     
     bStartIMG = true;
     
+    
+    //black out the finalIMG
+    for(int i = 0; i < vidWidth; i++)
+    {
+        for(int j = 0; j < vidHeight; j++)
+        {
+            finalIMG.setColor(i, j, 0);
+        }
+    }
 }
 
 //--------------------------------------------------------------
@@ -45,6 +54,14 @@ void testApp::update(){
 		if (bLearnBakground == true){
 			bgIMG = grIMG;
             //grayBg = grayImage;		// the = sign copys the pixels from grayImage into grayBg (operator overloading)
+            //black out the finalIMG
+            for(int i = 0; i < vidWidth; i++)
+            {
+                for(int j = 0; j < vidHeight; j++)
+                {
+                    finalIMG.setColor(i, j, 0);
+                }
+            }
 			bLearnBakground = false;
 		}
 
@@ -76,7 +93,9 @@ void testApp::update(){
                     diffIMG.setColor(i, j, 0);
                 }
                 
-                if(finalIMG.getColor(i, j).getBrightness() < diffIMG.getColor(i, j).getBrightness())
+                
+                
+                if(diffIMG.getColor(i,j).getBrightness() == 255)
                 {
                     finalIMG.setColor(i, j, 255);
                 }
