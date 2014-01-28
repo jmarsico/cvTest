@@ -45,6 +45,7 @@ void testApp::update(){
 	
     vidPlayer.update();
     bNewFrame = vidPlayer.isFrameNew();
+    //test
 
 	if (bNewFrame){
 
