@@ -7,55 +7,38 @@ void testApp::setup(){
     vidPlayer.play();
     vidWidth = vidPlayer.getWidth();
     vidHeight = vidPlayer.getHeight();
-    colorImg.allocate(854,480);
-	grayImage.allocate(854,480);
-	grayBg.allocate(854,480);
-	grayDiff.allocate(854,480);
+    
 
 	bLearnBakground = true;
 	threshold = 80;
-    vidWidth = vidPlayer.getWidth();
-    vidHeight = vidPlayer.getHeight();
+    vidWidth = vidPlayer.getWidth();            //get video width
+    vidHeight = vidPlayer.getHeight();          //get video height
     
-    diffIMG.allocate(vidWidth, vidHeight, OF_IMAGE_GRAYSCALE);
+    
+    //set up size of ofPixels objects and type (grayscale)
+    diffIMG.allocate(vidWidth, vidHeight, OF_IMAGE_GRAYSCALE); 
     grIMG.allocate(vidWidth, vidHeight, OF_IMAGE_GRAYSCALE);
     bgIMG.allocate(vidWidth, vidHeight, OF_IMAGE_GRAYSCALE);
     finalIMG.allocate(vidWidth, vidHeight, OF_IMAGE_GRAYSCALE);
     
-    bStartIMG = true;
-    
-    
-    //black out the finalIMG
-    for(int i = 0; i < vidWidth; i++)
-    {
-        for(int j = 0; j < vidHeight; j++)
-        {
-            finalIMG.setColor(i, j, 0);
-        }
-    }
 }
 
 //--------------------------------------------------------------
 void testApp::update(){
 
-    
 
     bool bNewFrame = false;
-
-	
-    vidPlayer.update();
-    bNewFrame = vidPlayer.isFrameNew();
-    //test
-
+    vidPlayer.update();         //update videoplayer
+    bNewFrame = vidPlayer.isFrameNew();         //check if it's a new frame
+    
+    //if it's a new frame, go to work
 	if (bNewFrame){
 
-       //colorImg.setFromPixels(vidPlayer.getPixels(), 854,480);
-        //grayImage = colorImg;
-        
-		if (bLearnBakground == true){
+		//we can capture background by pressing space bar
+        if (bLearnBakground == true){
 			bgIMG = grIMG;
-            //grayBg = grayImage;		// the = sign copys the pixels from grayImage into grayBg (operator overloading)
-            //black out the finalIMG
+            
+            //black out the finalIMG 
             for(int i = 0; i < vidWidth; i++)
             {
                 for(int j = 0; j < vidHeight; j++)
@@ -63,18 +46,14 @@ void testApp::update(){
                     finalIMG.setColor(i, j, 0);
                 }
             }
-			bLearnBakground = false;
+            
+			bLearnBakground = false;            //reset this to false
 		}
 
-		// take the abs value of the difference between background and incoming and then threshold:
-		//grayDiff.absDiff(grayBg, grayImage);
-		//grayDiff.threshold(threshold);
-        
+        //set current ofPixels to current frame
         grIMG = (vidPlayer.getPixelsRef());
         
-        
-        
-        
+        //go through pixels one by one
         for(int i = 0; i < vidWidth; i++)
         {
             for(int j = 0; j < vidHeight; j++)
@@ -93,12 +72,19 @@ void testApp::update(){
                 {
                     diffIMG.setColor(i, j, 0);
                 }
-                
-                
-                
+
+                //if the diffIMG is white, set those pixels white in finalIMG, this will accumulate
                 if(diffIMG.getColor(i,j).getBrightness() == 255)
                 {
                     finalIMG.setColor(i, j, 255);
+                }
+                
+                
+                //fade out the older white over time (motion history image)
+                int brightness = finalIMG.getColor(i, j).getBrightness();
+                if(brightness >= 10)
+                {
+                    finalIMG.setColor(i,j, (brightness - 10));
                 }
             }
         }
@@ -110,33 +96,24 @@ void testApp::update(){
 
 //--------------------------------------------------------------
 void testApp::draw(){
-
-	// draw the incoming, the grayscale, the bg and the thresholded difference
-	//ofSetHexColor(0xffffff);
-	//colorImg.draw(20,20);
-	//grayImage.draw(360,20);
-	//grayBg.draw(20,280);
-    //grayDiff.draw(0,0);
     
-    image = diffIMG;
-    image.draw(0,0,vidWidth/3,vidHeight/3);
+    //set pixels to an image and draw it
+    image = diffIMG;            
+    image.draw(0,0,vidWidth/2,vidHeight/2);
     
+    //set pixels to an image and draw it
     finalImage = finalIMG;
-    finalImage.draw(0, vidHeight/3 + 20, vidWidth/3, vidHeight/3);
+    finalImage.draw(vidWidth/2 + 20, 0, vidWidth/2, vidHeight/2);
     	
 	// finally, a report:
 	ofSetHexColor(0xffffff);
 	stringstream reportStr;
-	reportStr << "bg subtraction and blob detection" << endl
+	reportStr << "bg subtraction" << endl
 			  << "press ' ' to capture bg" << endl
 			  << "threshold " << threshold << " (press: +/-)" << endl
-			  //<< "num blobs found " << contourFinder.nBlobs << ", fps: " << ofGetFrameRate() << endl
-              << " width: " << vidWidth <<", height: " << vidHeight;
+              << "width: " << vidWidth <<", height: " << vidHeight;
 	ofDrawBitmapString(reportStr.str(), 20, 600);
     
-    
-    grayBg = grayImage; //update the background image to be the current image
-     
 
 }
 

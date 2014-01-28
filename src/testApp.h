@@ -25,13 +25,8 @@ public:
  
     ofVideoPlayer 		vidPlayer;      //set up videoplayer object
 
-    //allocate memory for different opencv images
-    ofxCvColorImage			colorImg;
-    ofxCvGrayscaleImage 	grayImage;
-    ofxCvGrayscaleImage 	grayBg;
-    ofxCvGrayscaleImage 	grayDiff;
-
-    ofxCvContourFinder 	contourFinder;
+    //allocate memory for different pixel and image objects
+    
     
     ofPixels grIMG;
     ofPixels bgIMG;
@@ -42,7 +37,6 @@ public:
 
     int threshold;
     bool bLearnBakground;
-    bool bStartIMG;
     float vidHeight;
     float vidWidth;
 
