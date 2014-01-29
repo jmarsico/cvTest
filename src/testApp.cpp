@@ -19,7 +19,9 @@ void testApp::setup(){
     diffIMG.allocate(vidWidth, vidHeight, OF_IMAGE_GRAYSCALE); 
     grIMG.allocate(vidWidth, vidHeight, OF_IMAGE_GRAYSCALE);
     bgIMG.allocate(vidWidth, vidHeight, OF_IMAGE_GRAYSCALE);
-    finalIMG.allocate(vidWidth, vidHeight, OF_IMAGE_GRAYSCALE);
+    meIMG.allocate(vidWidth, vidHeight, OF_IMAGE_GRAYSCALE);
+    mhIMG.allocate(vidWidth, vidHeight, OF_IMAGE_GRAYSCALE);
+    hmIMG.allocate(vidWidth, vidHeight, OF_IMAGE_GRAYSCALE);
     
 }
 
@@ -34,18 +36,21 @@ void testApp::update(){
     //if it's a new frame, go to work
 	if (bNewFrame){
 
-		//we can capture background by pressing space bar
+		///////////// RESET ///////////////////////
         if (bLearnBakground == true){
-			bgIMG = grIMG;
+			bgIMG = grIMG;          //set background to current frame
             
-            //black out the finalIMG 
+            //black out the motion energy and  
             for(int i = 0; i < vidWidth; i++)
             {
                 for(int j = 0; j < vidHeight; j++)
                 {
-                    finalIMG.setColor(i, j, 0);
+                    meIMG.setColor(i, j, 0);
+                    mhIMG.setColor(i, j, 0);
+                    mhIMG.setColor(i,j,0);
                 }
             }
+            
             
 			bLearnBakground = false;            //reset this to false
 		}
@@ -76,22 +81,27 @@ void testApp::update(){
                 //if the diffIMG is white, set those pixels white in finalIMG, this will accumulate
                 if(diffIMG.getColor(i,j).getBrightness() == 255)
                 {
-                    finalIMG.setColor(i, j, 255);
+                   int tempBright = hmIMG.getColor(i, j).getBrightness();
+                    meIMG.setColor(i, j, 255);
+                    mhIMG.setColor(i,j,255);
+                    if(tempBright <= 235)
+                    {
+                        hmIMG.setColor(i,j, (tempBright + 20));
+                    }
                 }
-                
                 
                 //fade out the older white over time (motion history image)
-                int brightness = finalIMG.getColor(i, j).getBrightness();
+                int brightness = mhIMG.getColor(i, j).getBrightness();
                 if(brightness >= 10)
                 {
-                    finalIMG.setColor(i,j, (brightness - 10));
+                    mhIMG.setColor(i,j, (brightness - 10));
                 }
+                
+                
             }
         }
-        
-        bgIMG = grIMG;
+        bgIMG = grIMG;          //set background to current frame
     }
-
 }
 
 //--------------------------------------------------------------
@@ -101,14 +111,23 @@ void testApp::draw(){
     image = diffIMG;            
     image.draw(0,0,vidWidth/2,vidHeight/2);
     
-    //set pixels to an image and draw it
-    finalImage = finalIMG;
-    finalImage.draw(vidWidth/2 + 20, 0, vidWidth/2, vidHeight/2);
+    //set motion energy pixels to an image and draw it
+    meImage = meIMG;
+    meImage.draw(vidWidth/2 + 20, 0, vidWidth/2, vidHeight/2);
+    
+    //set motion history pixels to an image and draw it
+    mhImage = mhIMG;
+    mhImage.draw(0, vidHeight/2 + 20, vidWidth/2, vidHeight/2);
+    
+    //set heat map pixesl to an image and draw it
+    hmImage = hmIMG;
+    hmImage.draw(vidWidth/2 + 20, vidHeight/2 + 20, vidWidth/2, vidHeight/2);
     	
 	// finally, a report:
 	ofSetHexColor(0xffffff);
 	stringstream reportStr;
 	reportStr << "bg subtraction" << endl
+              << "FPS: " << ofGetFrameRate() << endl
 			  << "press ' ' to capture bg" << endl
 			  << "threshold " << threshold << " (press: +/-)" << endl
               << "width: " << vidWidth <<", height: " << vidHeight;

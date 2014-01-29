@@ -28,13 +28,19 @@ public:
     //allocate memory for different pixel and image objects
     
     
-    ofPixels grIMG;
-    ofPixels bgIMG;
-    ofPixels diffIMG;
-    ofPixels finalIMG;
-    ofImage image;
-    ofImage finalImage;
-
+    ofPixels grIMG;         //grey image
+    ofPixels bgIMG;         //background image
+    ofPixels diffIMG;       //difference image
+    ofPixels meIMG;         //motion energy
+    ofPixels mhIMG;         //motion history
+    ofPixels hmIMG;         //heat map
+    ofImage image;          //diff image for view
+    ofImage meImage;        //motion energy for view
+    ofImage mhImage;        //motion history for view
+    ofImage hmImage;        //heat map for view
+    
+    
+    
     int threshold;
     bool bLearnBakground;
     float vidHeight;
