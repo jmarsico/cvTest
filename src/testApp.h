@@ -38,6 +38,8 @@ public:
     ofImage meImage;        //motion energy for view
     ofImage mhImage;        //motion history for view
     ofImage hmImage;        //heat map for view
+    ofColor c;
+    ofColor cDelta;
     
     
     
